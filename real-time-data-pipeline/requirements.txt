@@ -1,0 +1,25 @@
+# Core dependencies for Spark
+pyspark==3.1.2  # PySpark version suitable for the job
+
+# Snowflake Connector to load data into Snowflake
+snowflake-connector-python==2.4.1  # Snowflake connector for Python
+
+# For real-time data generation and consumption (simulating Kafka)
+kafka-python==2.0.2  # Kafka client for Python
+
+# For interacting with Snowflake in Python (includes SQLAlchemy)
+snowflake-sqlalchemy==1.2.4  # For SQLAlchemy Snowflake support
+
+# Apache Airflow (with necessary extras for integrations)
+apache-airflow==2.1.2  # Airflow version compatible with your environment
+apache-airflow-providers-snowflake==2.0.0  # Provider package for Snowflake integration in Airflow
+apache-airflow-providers-apache-spark==2.0.0  # Airflow Spark integration for PySpark tasks
+apache-airflow-providers-docker==2.0.0  # For DockerOperator to run containers in Airflow
+
+# Data processing and utilities
+pandas==1.3.3  # For dataframe manipulations in Python
+requests==2.26.0  # For HTTP requests (used in Snowflake connector or API calls)
+jsonschema==3.2.0  # For working with JSON schema validation
+
+# Dependencies for visualizations and debugging
+matplotlib==3.4.3  # For any quick visualization if needed (e.g., for debugging data)

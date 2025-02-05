@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  airflow:
+    image: apache/airflow:2.1.2
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow:/opt/airflow
+    depends_on:
+      - kafka
+
+  kafka:
+    image: wurstmeister/kafka
+    environment:
+      KAFKA_ADVERTISED_LISTENER: INSIDE://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_LISTENER_NAME_INTERNAL: INSIDE
+      KAFKA_LISTENER_INTERNAL: INSIDE://kafka:9093
+      KAFKA_LISTENER_EXTERNAL: OUTSIDE://kafka:9092
+      KAFKA_LISTENER_INTERNAL_PORT: 9093
+      KAFKA_LISTENER_EXTERNAL_PORT: 9092
+      KAFKA_LISTENER_NAME_EXTERNAL: OUTSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+    ports:
+      - "2181:2181"
