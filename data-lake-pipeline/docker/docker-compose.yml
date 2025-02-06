@@ -1,0 +1,74 @@
+version: '3'
+
+services:
+  # Kafka and Zookeeper
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    environment:
+      KAFKA_ADVERTISED_LISTENER: INSIDE-KAFKA:9093
+      KAFKA_LISTENER: INSIDE-KAFKA:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_LISTENER_NAME: INSIDE-KAFKA
+      KAFKA_LISTENER_INTERNAL_PORT: 9093
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9093:9093"
+    depends_on:
+      - zookeeper
+
+  # Spark
+  spark:
+    image: bitnami/spark:latest
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    depends_on:
+      - kafka
+    volumes:
+      - ./spark:/usr/local/spark
+
+  # Airflow
+  airflow:
+    image: apache/airflow:2.1.2
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__RBAC=True
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=sqlite:///airflow.db
+      - AIRFLOW__CORE__FERNET_KEY=YOUR_KEY_HERE
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./airflow:/opt/airflow
+    depends_on:
+      - kafka
+
+  # Postgres (for Airflow metadata storage)
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+    ports:
+      - "5432:5432"
+
+  # S3 for testing (minio as a local S3 service)
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"
+    command: server /data
+
+networks:
+  default:
+    external:
+      name: my_network
